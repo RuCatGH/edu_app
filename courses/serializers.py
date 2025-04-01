@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Course, Lecture, Assignment, Question, Attempt
+from .models import Course, Lecture, Assignment
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -68,27 +68,3 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     def get_users(self, obj):
         return obj.users_access
-
-class QuestionSerializer(serializers.ModelSerializer):
-    createDate = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Question
-        fields = ['id', 'data', 'createDate', 'creator', 'course']
-
-    def get_createDate(self, obj):
-        return int(obj.create_date.timestamp())
-
-class AttemptSerializer(serializers.ModelSerializer):
-    startDate = serializers.SerializerMethodField()
-    endDate = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Attempt
-        fields = ['id', 'data', 'startDate', 'endDate', 'finished', 'user', 'task', 'course', 'grade']
-
-    def get_startDate(self, obj):
-        return int(obj.start_date.timestamp())
-
-    def get_endDate(self, obj):
-        return int(obj.end_date.timestamp()) if obj.end_date else -1
