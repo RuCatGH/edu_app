@@ -18,7 +18,7 @@ class QuestionCreateAPIView(APIView):
         return Response(serializer.errors, status=400)
 
 class QuestionUpdateAPIView(APIView):
-    def put(self, request):
+    def post(self, request):
         question_id = request.data.get('id')
         new_version = request.data.get('newVersion')
         
@@ -88,7 +88,7 @@ class AttemptCreateAPIView(APIView):
         return Response(serializer.errors, status=400)
 
 class AttemptUpdateAPIView(APIView):
-    def put(self, request, attemptId):
+    def post(self, request, attemptId):
         try:
             attempt = Attempt.objects.get(id=attemptId)
         except Attempt.DoesNotExist:

@@ -7,6 +7,8 @@ from .models import *
 from .serializers import *
 
 # ==================== Course Views ====================
+
+
 class CourseCreateAPIView(APIView):
     def post(self, request):
         serializer = CourseSerializer(data=request.data)
@@ -15,19 +17,21 @@ class CourseCreateAPIView(APIView):
             return Response({"id": course.id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=400)
 
+
 class CourseUpdateAPIView(APIView):
-    def put(self, request):
+    def post(self, request):
         course_id = request.data.get('id')
         try:
             course = Course.objects.get(id=course_id)
         except Course.DoesNotExist:
             return Response({"error": "Course not found"}, status=404)
-        
+
         serializer = CourseSerializer(course, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"id": course_id})
         return Response(serializer.errors, status=400)
+
 
 class CourseDeleteAPIView(APIView):
     def post(self, request):
@@ -38,6 +42,7 @@ class CourseDeleteAPIView(APIView):
             return Response({"id": course_id})
         except Course.DoesNotExist:
             return Response({"error": "Course not found"}, status=404)
+
 
 class CourseGetAPIView(APIView):
     def post(self, request):
@@ -53,6 +58,8 @@ class CourseGetAPIView(APIView):
         return Response(response)
 
 # ==================== Lecture Views ====================
+
+
 class LectureCreateAPIView(APIView):
     def post(self, request):
         serializer = LectureSerializer(data=request.data)
@@ -61,19 +68,22 @@ class LectureCreateAPIView(APIView):
             return Response({"id": lecture.id}, status=201)
         return Response(serializer.errors, status=400)
 
+
 class LectureUpdateAPIView(APIView):
-    def put(self, request):
+    def post(self, request):
         lecture_id = request.data.get('id')
         try:
             lecture = Lecture.objects.get(id=lecture_id)
         except Lecture.DoesNotExist:
             return Response({"error": "Lecture not found"}, status=404)
-        
-        serializer = LectureSerializer(lecture, data=request.data, partial=True)
+
+        serializer = LectureSerializer(
+            lecture, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"id": lecture_id})
         return Response(serializer.errors, status=400)
+
 
 class LectureDeleteAPIView(APIView):
     def post(self, request):
@@ -84,6 +94,7 @@ class LectureDeleteAPIView(APIView):
             return Response({"id": lecture_id})
         except Lecture.DoesNotExist:
             return Response({"error": "Lecture not found"}, status=404)
+
 
 class LectureGetAPIView(APIView):
     def post(self, request):
@@ -99,6 +110,8 @@ class LectureGetAPIView(APIView):
         return Response(response)
 
 # ==================== Assignment Views ====================
+
+
 class AssignmentCreateAPIView(APIView):
     def post(self, request):
         serializer = AssignmentSerializer(data=request.data)
@@ -107,19 +120,22 @@ class AssignmentCreateAPIView(APIView):
             return Response({"id": assignment.id}, status=201)
         return Response(serializer.errors, status=400)
 
+
 class AssignmentUpdateAPIView(APIView):
-    def put(self, request):
+    def post(self, request):
         assignment_id = request.data.get('id')
         try:
             assignment = Assignment.objects.get(id=assignment_id)
         except Assignment.DoesNotExist:
             return Response({"error": "Assignment not found"}, status=404)
-        
-        serializer = AssignmentSerializer(assignment, data=request.data, partial=True)
+
+        serializer = AssignmentSerializer(
+            assignment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"id": assignment_id})
         return Response(serializer.errors, status=400)
+
 
 class AssignmentGetAPIView(APIView):
     def post(self, request):
@@ -133,4 +149,3 @@ class AssignmentGetAPIView(APIView):
             except Assignment.DoesNotExist:
                 response.append({"id": aid})
         return Response(response)
-

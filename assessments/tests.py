@@ -39,7 +39,8 @@ class AssessmentsBaseTestCase(TestCase):
             user=self.student,
             task=self.assignment,
             course=self.course,
-            data={}
+            data={},
+            finished=False
         )
 
 
@@ -63,7 +64,7 @@ class QuestionViewsTests(AssessmentsBaseTestCase):
             'newVersion': {'question': 'Updated question'}
         }
         self.client.force_authenticate(user=self.teacher)
-        response = self.client.put(url, data, format='json')
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.question.refresh_from_db()
         self.assertEqual(len(self.question.data), 2)
@@ -71,7 +72,7 @@ class QuestionViewsTests(AssessmentsBaseTestCase):
 
 class AttemptTests(AssessmentsBaseTestCase):
     def test_grade_attempt(self):
-        url = reverse('attempt-grade', args=[self.attempt.id])
+        url = reverse('assessments:attempt-grade', args=[self.attempt.id])
         data = {'grade': 85}
         self.client.force_authenticate(user=self.teacher)
         response = self.client.post(url, data, format='json')
@@ -80,14 +81,15 @@ class AttemptTests(AssessmentsBaseTestCase):
         self.assertEqual(self.attempt.grade, 85)
 
     def test_list_attempts(self):
-        url = reverse('attempt-list') + '?userIds[]=' + str(self.student.id)
+        url = reverse('assessments:attempt-list') + \
+            '?userIds[]=' + str(self.student.id)
         self.client.force_authenticate(user=self.teacher)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
     def test_create_attempt(self):
-        url = reverse('attempt-create')
+        url = reverse('assessments:attempt-create')
         data = {
             'user': self.student.id,
             'task': self.assignment.id,
@@ -100,16 +102,16 @@ class AttemptTests(AssessmentsBaseTestCase):
         self.assertEqual(Attempt.objects.count(), 2)
 
     def test_update_attempt(self):
-        url = reverse('attempt-update', args=[self.attempt.id])
+        url = reverse('assessments:attempt-update', args=[self.attempt.id])
         data = {'data': {'answer': 'Test answer'}}
         self.client.force_authenticate(user=self.student)
-        response = self.client.put(url, data, format='json')
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.attempt.refresh_from_db()
         self.assertIn('answer', self.attempt.data)
 
     def test_finish_attempt(self):
-        url = reverse('attempt-finish', args=[self.attempt.id])
+        url = reverse('assessments:attempt-finish', args=[self.attempt.id])
         self.client.force_authenticate(user=self.student)
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -58,7 +58,7 @@ class CourseTests(CoursesBaseTestCase):
             'description': 'Updated Description'
         }
         self.client.force_authenticate(user=self.teacher)
-        response = self.client.put(url, data, format='json')
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.course.refresh_from_db()
         self.assertEqual(self.course.title, 'Updated Title')
@@ -104,7 +104,7 @@ class LectureTests(CoursesBaseTestCase):
             'data': {'content': 'Updated content'}
         }
         self.client.force_authenticate(user=self.teacher)
-        response = self.client.put(url, data, format='json')
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.lecture.refresh_from_db()
         self.assertEqual(self.lecture.title, 'Updated Lecture')
@@ -151,7 +151,7 @@ class AssignmentTests(CoursesBaseTestCase):
             'data': {'questions': [{'q1': 'test'}]}
         }
         self.client.force_authenticate(user=self.teacher)
-        response = self.client.put(url, data, format='json')
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assignment.refresh_from_db()
         self.assertEqual(self.assignment.title, 'Updated Assignment')
