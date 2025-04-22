@@ -82,7 +82,9 @@ DB_USER_PASSWORD=your_password
 ```
 
 6. Выполните миграции:
-
+```bash
+python manage.py makemigrations
+```
 ```bash
 python manage.py migrate
 ```
