@@ -10,10 +10,21 @@ urlpatterns = [
     path('course/delete', views.CourseDeleteAPIView.as_view(), name='course-delete'),
     path('course/get', views.CourseGetAPIView.as_view(), name='course-get'),
 
+    # ==================== Course User Management Endpoints ====================
+    path('course/user/add', views.CourseUserAddAPIView.as_view(),
+         name='course-user-add'),
+    path('course/user/delete', views.CourseUserDeleteAPIView.as_view(),
+         name='course-user-delete'),
+    path('course/user/update', views.CourseUserUpdateAPIView.as_view(),
+         name='course-user-update'),
+
     # ==================== Lecture Endpoints ====================
-    path('lecture/create', views.LectureCreateAPIView.as_view(), name='lecture-create'),
-    path('lecture/update', views.LectureUpdateAPIView.as_view(), name='lecture-update'),
-    path('lecture/delete', views.LectureDeleteAPIView.as_view(), name='lecture-delete'),
+    path('lecture/create', views.LectureCreateAPIView.as_view(),
+         name='lecture-create'),
+    path('lecture/update', views.LectureUpdateAPIView.as_view(),
+         name='lecture-update'),
+    path('lecture/delete', views.LectureDeleteAPIView.as_view(),
+         name='lecture-delete'),
     path('lecture/get', views.LectureGetAPIView.as_view(), name='lecture-get'),
 
     # ==================== Assignment Endpoints ====================

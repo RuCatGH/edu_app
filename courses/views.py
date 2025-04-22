@@ -57,6 +57,101 @@ class CourseGetAPIView(APIView):
                 response.append({"id": cid})
         return Response(response)
 
+
+# ==================== Course User Management Views ====================
+
+
+class CourseUserAddAPIView(APIView):
+    def post(self, request):
+        serializer = CourseUserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        course_id = serializer.validated_data['course']
+        user_id = serializer.validated_data['user']
+        role = serializer.validated_data.get('role', 0)  # Default to student
+
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"error": "Course not found"}, status=404)
+
+        # Check if user is already in the course
+        if user_id in course.students or user_id in course.teachers:
+            return Response({"error": "User already in course"}, status=400)
+
+        # Add user to appropriate list
+        if role == 0:  # Student
+            course.students.append(user_id)
+        elif role == 1:  # Moderator
+            course.teachers.append(user_id)
+        else:
+            return Response({"error": "Invalid role"}, status=400)
+
+        course.save()
+        return Response({"user": user_id})
+
+
+class CourseUserDeleteAPIView(APIView):
+    def post(self, request):
+        serializer = CourseUserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        course_id = serializer.validated_data['course']
+        user_id = serializer.validated_data['user']
+
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"error": "Course not found"}, status=404)
+
+        # Remove user from both lists
+        if user_id in course.students:
+            course.students.remove(user_id)
+        if user_id in course.teachers:
+            course.teachers.remove(user_id)
+
+        course.save()
+        return Response({"user": user_id})
+
+
+class CourseUserUpdateAPIView(APIView):
+    def post(self, request):
+        serializer = CourseUserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        course_id = serializer.validated_data['course']
+        user_id = serializer.validated_data['user']
+        new_role = serializer.validated_data.get('role')
+
+        if new_role is None:
+            return Response({"error": "Role is required"}, status=400)
+
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"error": "Course not found"}, status=404)
+
+        # Remove user from current role
+        if user_id in course.students:
+            course.students.remove(user_id)
+        if user_id in course.teachers:
+            course.teachers.remove(user_id)
+
+        # Add user to new role
+        if new_role == 0:  # Student
+            course.students.append(user_id)
+        elif new_role == 1:  # Moderator
+            course.teachers.append(user_id)
+        else:
+            return Response({"error": "Invalid role"}, status=400)
+
+        course.save()
+        return Response({"user": user_id})
+
+
 # ==================== Lecture Views ====================
 
 
@@ -109,11 +204,16 @@ class LectureGetAPIView(APIView):
                 response.append({"id": lid})
         return Response(response)
 
+
 # ==================== Assignment Views ====================
 
 
 class AssignmentCreateAPIView(APIView):
     def post(self, request):
+        # Convert single version to list for versioning
+        if isinstance(request.data.get('data'), dict):
+            request.data['data'] = [request.data['data']]
+
         serializer = AssignmentSerializer(data=request.data)
         if serializer.is_valid():
             assignment = serializer.save()
@@ -129,12 +229,22 @@ class AssignmentUpdateAPIView(APIView):
         except Assignment.DoesNotExist:
             return Response({"error": "Assignment not found"}, status=404)
 
-        serializer = AssignmentSerializer(
-            assignment, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"id": assignment_id})
-        return Response(serializer.errors, status=400)
+        # Update assignment data
+        if 'data' in request.data:
+            assignment.data = request.data['data']
+        if 'title' in request.data:
+            assignment.title = request.data['title']
+        if 'active' in request.data:
+            assignment.active = request.data['active']
+        if 'attempts_allowed' in request.data:
+            assignment.attempts_allowed = request.data['attempts_allowed']
+        if 'start_date' in request.data:
+            assignment.start_date = request.data['start_date']
+        if 'end_date' in request.data:
+            assignment.end_date = request.data['end_date']
+
+        assignment.save()
+        return Response({"id": assignment_id})
 
 
 class AssignmentGetAPIView(APIView):

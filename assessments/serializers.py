@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Course, Question, Attempt
-from django.contrib.auth.models import User
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     createDate = serializers.SerializerMethodField()
@@ -12,13 +12,15 @@ class QuestionSerializer(serializers.ModelSerializer):
     def get_createDate(self, obj):
         return int(obj.create_date.timestamp())
 
+
 class AttemptSerializer(serializers.ModelSerializer):
     startDate = serializers.SerializerMethodField()
     endDate = serializers.SerializerMethodField()
 
     class Meta:
         model = Attempt
-        fields = ['id', 'data', 'startDate', 'endDate', 'finished', 'user', 'task', 'course', 'grade']
+        fields = ['id', 'data', 'startDate', 'endDate',
+                  'finished', 'user', 'task', 'course', 'grade']
 
     def get_startDate(self, obj):
         return int(obj.start_date.timestamp())

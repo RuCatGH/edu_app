@@ -2,37 +2,29 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
-from django.contrib.auth.models import User
 from courses.models import Course, Lecture, Assignment
 
 
 class CoursesBaseTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.teacher = User.objects.create_user(
-            username='teacher',
-            password='testpass123',
-            is_staff=True
-        )
-        self.student = User.objects.create_user(
-            username='student',
-            password='testpass123'
-        )
+        self.teacher_id = 'teacher123'
+        self.student_id = 'student123'
         self.course = Course.objects.create(
             title='Test Course',
             description='Test Description',
-            owner=self.teacher
+            owner=self.teacher_id
         )
         self.lecture = Lecture.objects.create(
             title='Test Lecture',
             course=self.course,
-            creator=self.teacher,
+            creator=self.teacher_id,
             data={'content': 'Test content'}
         )
         self.assignment = Assignment.objects.create(
             title='Test Assignment',
             course=self.course,
-            creator=self.teacher,
+            creator=self.teacher_id,
             data={'questions': []}
         )
 
@@ -43,9 +35,9 @@ class CourseTests(CoursesBaseTestCase):
         data = {
             'title': 'New Course',
             'description': 'New Description',
-            'owner': self.teacher.id
+            'owner': self.teacher_id
         }
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Course.objects.count(), 2)
@@ -57,7 +49,7 @@ class CourseTests(CoursesBaseTestCase):
             'title': 'Updated Title',
             'description': 'Updated Description'
         }
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.course.refresh_from_db()
@@ -66,7 +58,7 @@ class CourseTests(CoursesBaseTestCase):
     def test_delete_course(self):
         url = reverse('courses:course-delete')
         data = {'id': self.course.id}
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Course.objects.count(), 0)
@@ -74,7 +66,7 @@ class CourseTests(CoursesBaseTestCase):
     def test_get_courses(self):
         url = reverse('courses:course-get')
         data = [self.course.id]
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
@@ -88,10 +80,10 @@ class LectureTests(CoursesBaseTestCase):
             'title': 'New Lecture',
             'data': {'content': 'New content'},
             'course': self.course.id,
-            'creator': self.teacher.id,
+            'creator': self.teacher_id,
             'activate': True
         }
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Lecture.objects.count(), 2)
@@ -103,7 +95,7 @@ class LectureTests(CoursesBaseTestCase):
             'title': 'Updated Lecture',
             'data': {'content': 'Updated content'}
         }
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.lecture.refresh_from_db()
@@ -112,7 +104,7 @@ class LectureTests(CoursesBaseTestCase):
     def test_delete_lecture(self):
         url = reverse('courses:lecture-delete')
         data = {'id': self.lecture.id}
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Lecture.objects.count(), 0)
@@ -120,7 +112,7 @@ class LectureTests(CoursesBaseTestCase):
     def test_get_lectures(self):
         url = reverse('courses:lecture-get')
         data = [self.lecture.id]
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
@@ -134,11 +126,11 @@ class AssignmentTests(CoursesBaseTestCase):
             'title': 'New Assignment',
             'data': {'questions': []},
             'course': self.course.id,
-            'creator': self.teacher.id,
+            'creator': self.teacher_id,
             'active': True,
             'attempts': 3
         }
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Assignment.objects.count(), 2)
@@ -150,16 +142,17 @@ class AssignmentTests(CoursesBaseTestCase):
             'title': 'Updated Assignment',
             'data': {'questions': [{'q1': 'test'}]}
         }
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assignment.refresh_from_db()
         self.assertEqual(self.assignment.title, 'Updated Assignment')
+        self.assertEqual(self.assignment.data, {'questions': [{'q1': 'test'}]})
 
     def test_get_assignments(self):
         url = reverse('courses:task-get')
         data = [self.assignment.id]
-        self.client.force_authenticate(user=self.teacher)
+        self.client.force_authenticate(user=None)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
