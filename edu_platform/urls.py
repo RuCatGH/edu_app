@@ -9,5 +9,6 @@ urlpatterns = [
 
     # ==================== Main Endpoints ====================
     path('', include("courses.urls", namespace="courses")),
-    path('', include("assessments.urls", namespace="assessments"))
+    path('', include("assessments.urls", namespace="assessments")),
+    path('', include("users.urls", namespace="users"))
 ]
