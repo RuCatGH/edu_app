@@ -79,7 +79,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'edu_platform.wsgi.application'
 
 
-# Database
+# Database.
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
