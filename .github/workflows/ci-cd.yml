@@ -49,7 +49,6 @@ jobs:
         DJANGO_SETTINGS_MODULE: edu_platform.settings
         PYTHONPATH: ${{ github.workspace }}
       run: |
-        ls -al
         pytest --cov=./ --cov-report=xml
 
     - name: Upload coverage to Codecov
