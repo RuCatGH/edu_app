@@ -46,7 +46,7 @@ jobs:
         DEBUG: ${{ secrets.TEST_DEBUG }}
         SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
         ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
-        DJANGO_SETTINGS_MODULE: edu_platform.settings
+        DJANGO_SETTINGS_MODULE: edu_platform.edu_platform.settings
       run: |
         pytest --cov=./ --cov-report=xml
 
