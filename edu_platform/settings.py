@@ -12,7 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-from config import DB_USER, DB_NAME, DB_USER_PASSWORD, DEBUG, SECRET_KEY, ALLOWED_HOSTS
+from config import (
+    DB_USER, DB_NAME, DB_USER_PASSWORD, DB_HOST, DB_PORT,
+    DEBUG, SECRET_KEY, ALLOWED_HOSTS
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,8 +88,8 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_USER_PASSWORD,
-        'HOST': 'db',
-        'PORT': '5432',
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     }
 }
 

@@ -43,6 +43,8 @@ jobs:
         DB_NAME: ${{ secrets.TEST_DB_NAME }}
         DB_USER: ${{ secrets.TEST_DB_USER }}
         DB_USER_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+        DB_HOST: localhost
+        DB_PORT: 5432
         DEBUG: ${{ secrets.TEST_DEBUG }}
         SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
         ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
