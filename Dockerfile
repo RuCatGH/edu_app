@@ -4,7 +4,8 @@ FROM python:3.11-slim as builder
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Set work directory
 WORKDIR /app
@@ -14,7 +15,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Install Python dependencies
 COPY requirements.txt .
@@ -23,36 +25,38 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.t
 # Final stage
 FROM python:3.11-slim
 
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 # Create directory for the app user
-RUN mkdir -p /home/app
+RUN mkdir -p /home/app/web && \
+    groupadd -r app && \
+    useradd -r -g app app && \
+    chown -R app:app /home/app
 
-# Create the app user
-RUN groupadd -r app && useradd -r -g app app
-
-# Create the appropriate directories
-ENV HOME=/home/app
-ENV APP_HOME=/home/app/web
-RUN mkdir $APP_HOME
-WORKDIR $APP_HOME
+# Set work directory
+WORKDIR /home/app/web
 
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Copy wheels from builder
 COPY --from=builder /app/wheels /wheels
 COPY --from=builder /app/requirements.txt .
 
 # Install dependencies
-RUN pip install --no-cache /wheels/*
+RUN pip install --no-cache /wheels/* && \
+    rm -rf /wheels
 
 # Copy project
-COPY . $APP_HOME
-
-# Change ownership of all files to app user
-RUN chown -R app:app $APP_HOME
+COPY --chown=app:app . .
 
 # Change to non-root user
 USER app
