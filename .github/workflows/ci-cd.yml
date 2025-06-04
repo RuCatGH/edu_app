@@ -37,8 +37,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest pytest-django pytest-cov
-        cd edu_platform/edu_platform
-        pip install -e .
 
     - name: Run tests
       env:
@@ -49,9 +47,9 @@ jobs:
         SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
         ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
         DJANGO_SETTINGS_MODULE: edu_platform.settings
-        PYTHONPATH: ${{ github.workspace }}/edu_platform
+        PYTHONPATH: ${{ github.workspace }}
       run: |
-        cd edu_platform
+        ls -al
         pytest --cov=./ --cov-report=xml
 
     - name: Upload coverage to Codecov
