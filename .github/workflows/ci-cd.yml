@@ -84,7 +84,7 @@ jobs:
         docker compose build
         echo "Listing Docker images:"
         docker images
-        docker tag edu-platform-web ${{ secrets.DOCKERHUB_USERNAME }}/edu-platform:latest
+        docker tag edu_app-web ${{ secrets.DOCKERHUB_USERNAME }}/edu-platform:latest
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/edu-platform:latest
 
   deploy:
