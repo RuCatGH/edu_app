@@ -47,7 +47,9 @@ jobs:
         SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
         ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
         DJANGO_SETTINGS_MODULE: edu_platform.edu_platform.settings
+        PYTHONPATH: ${{ github.workspace }}
       run: |
+        cd edu_platform
         pytest --cov=./ --cov-report=xml
 
     - name: Upload coverage to Codecov
